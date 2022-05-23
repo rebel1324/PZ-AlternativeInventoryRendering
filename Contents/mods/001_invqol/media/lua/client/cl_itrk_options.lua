@@ -85,7 +85,14 @@ addMultiOptions(
 )
 
 addMultiOptions(
-    "UpdateRate", 
+    "ItemDataUpdateRate", 
+    "1 second (Fast)",
+    "2 seconds (Fastest)",
+    "0.5 seconds (500ms) (Slow)",
+    "Almost Realtime (Slowest)"
+)
+addMultiOptions(
+    "InventoryUpdateRate", 
     "1 second (Fast)",
     "2 seconds (Fastest)",
     "0.5 seconds (500ms) (Slow)",
@@ -105,6 +112,9 @@ addSwitch("EnablePinItem", true)
 addSwitch("EnableShowModdedGun", false)
 addSwitch("EnableFilledMagazine", false)
 addSwitch("EnableEquipmentLine", true)
+addSwitch("EnableDelayedItemDataUpdate", true)
+addSwitch("EnableDelayedInventoryUpdate", false)
+addSwitch("ExperimentalTableWipe", false)
 
 local function initialize()
     if ModOptions and ModOptions.getInstance then
