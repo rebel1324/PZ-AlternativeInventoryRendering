@@ -1,0 +1,16 @@
+IGUI_EN = {
+    IGUI_CUI_Display_itrk_UpdateRate = "Inventory Update Rate",
+    IGUI_CUI_Display_itrk_MaxItemPerGroup = "Max Items to Display per Item Group",
+    IGUI_CUI_Display_itrk_OpacityPresets = "Inventory Opacity Preset",
+    IGUI_CUI_Display_itrk_BookMarkStyle = "Bookmark Icon Style",
+    IGUI_CUI_Display_itrk_EquipStyle = "Equipment Icon Style",
+    IGUI_CUI_Display_itrk_ControllerHighlight = "Controller Selected Highlight Style",
+    IGUI_CUI_Display_itrk_Booktrack = "Mark Higher Skill Books.",
+    IGUI_CUI_Display_itrk_EnableShowModdedGun = "Show Modded Weapons",
+    IGUI_CUI_Display_itrk_EnableTrackLitItems = "Track Books and Medias",
+    IGUI_CUI_Display_itrk_EnableTrackMediaItems = "Track Medias",
+    IGUI_CUI_Display_itrk_EnableBadCondHighlight = "Highlight Broken/Bad Condition Weapons",
+    IGUI_CUI_Display_itrk_EnablePinItem = "Show Pinned Item (WIP)",
+    IGUI_CUI_Display_itrk_EnableFilledMagazine = "Show Filled Magazine (WIP)",
+    IGUI_CUI_Display_itrk_EnableEquipmentLine = "Show Eqiupment Separator",
+}

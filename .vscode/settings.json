@@ -1,0 +1,16 @@
+{
+    "Lua.diagnostics.globals": [
+        "FixingManager",
+        "isShiftKeyDown",
+        "isCtrlKeyDown",
+        "getSpecificPlayer",
+        "RecipeManager",
+        "getMouseX",
+        "getMouseY",
+        "instanceof",
+        "Events",
+        "getText",
+        "UIManager",
+        "getZomboidRadio"
+    ]
+}
