@@ -1,6 +1,10 @@
 # Alternative Inventory Rendering
 
+![](./Contents/mods/001_invqol/aposter00_inv-fs8.png)
+
 ## Summary
+
+[STEAM Workshop Item Page](https://steamcommunity.com/sharedfiles/filedetails/?id=2809595776)
 
 This repository stores the code about the mod for the game called "Project Zomboid". 
 
