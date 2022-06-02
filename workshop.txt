@@ -1,7 +1,7 @@
 version=1
 id=2809595776
-title=Alterntiave Inventory Rendering
-description=[h1]Alterntiave Inventory Rendering[/h1]
+title=Alternative Inventory Rendering
+description=[h1]Alternative Inventory Rendering[/h1]
 description=
 description=[code]41.71 Tested[/code]
 description=
@@ -17,34 +17,45 @@ description=[*] Show more verbose information for some items
 description=[*] New fancy icons from [url=https://icons.modulz.app/]Modulz[/url]
 description=[*] Pretty compatible with most of QoL mods (if it does not adds any icons on the display)
 description=[*] Less FPS loss with many items in container (like trunk, GeneralContainers. etc..)
+description=1300 Capacity Trunk, 60FPS. (No Pause)
 description=[*] Adjusted brightness and more.
+description=[*] Adjustable Options
+description=[*] Check if the weapon has some attachments on it
+description=Now you can check what attachments are there if you enable the option.
+description=[*] Check which magazine is full or half by expanding magazines in the inventory.
 description=[/list]
 description=
 description=[h1]Recent Changelogs[/h1]
 description=[list]
-description=[*] Added Equipment Line just like vanilla inventory UI
-description=[*] But, added subtle contrast between equipped items and non-equipped items.
-description=[*] Controller Support
-description=[*] Prepping for Mod Options.
-description=[*] Fixed Missing Weapon Condition.
+description=[*] Added Detailed Magazine Status
+description=[img]https://i.imgur.com/KudfLpQ.png[/img]
 description=[/list]
 description=
 description=[h1]Attention![/h1]
 description=Since this is pretty much replacing existing inventory rendering code
+
 description=This mod is not compatible with mods listed below:
+
 description=[list]
+
 description=[*] Show duplicates (This mod will have this feature, in the later version.)
+
 description=[*] Show Read Books (This mod has this feature)
+
 description=[*] Some of esQol Feature (This mod covers show drainable / use counts)
+
 description=[*] Any kind of mod that adding icons to the inventory.
+
 description=If you want something, please leave your thoughts in the comment section below.
+
 description=[/list]
+
 description=
+
 description=Checkout my other mods:
+
 description=
-description=[url=https://steamcommunity.com/sharedfiles/filedetails/?id=2805528554][img]https://steamuserimages-a.akamaihd.net/ugc/1821154181526737205/E74FF7CB9E4CBD2DF21C9E71C0A835A7B8EA3753/?imw=200&imh=200&ima=fit&impolicy=Letterbox&imcolor=%23000000&letterbox=true[/img][/url]
-description=
-description=Workshop ID: 2809595776
-description=Mod ID: blkt_invtrack
+
+description=[url=https://steamcommunity.com/sharedfiles/filedetails/?id=2805528554][img]https://steamuserimages-a.akamaihd.net/ugc/1821154181526737205/E74FF7CB9E4CBD2DF21C9E71C0A835A7B8EA3753/?imw=200&imh=200&ima=fit&impolicy=Letterbox&imcolor=%23000000&letterbox=true[/img][/url][url=https://steamcommunity.com/sharedfiles/filedetails/?id=2812081390][img]https://steamuserimages-a.akamaihd.net/ugc/1821155053315899293/E4ED6A6908F68D9A0DBF5A0B0181E990C51CE155/?imw=200&imh=200&ima=fit&impolicy=Letterbox&imcolor=%23000000&letterbox=true[/img][/url]
 tags=Build 41;Framework;Interface;Literature;Misc;Multiplayer;Silly/Fun
 visibility=public

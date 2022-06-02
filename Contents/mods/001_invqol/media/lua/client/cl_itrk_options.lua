@@ -55,26 +55,26 @@ addMultiOptions(
     "Vanilla"
 )
 
-addMultiOptions(
-    "EquipStyle", 
-    "Use new icon",
-    "Use vanilla icon",
-    "Highlight Name"
-)
+-- addMultiOptions(
+--     "EquipStyle", 
+--     "Use new icon",
+--     "Use vanilla icon",
+--     "Highlight Name"
+-- )
 
 addMultiOptions(
     "ControllerHighlight", 
     "New Highlight",
-    "Static Highlight",
-    "Outlined Highlight"
+    "Static Highlight"
+    -- "Outlined Highlight"
 )
 
-addMultiOptions(
-    "BookTrack", 
-    "Only Show Readable Books (Fastest)",
-    "Readable Book and Higher (Moderate)",
-    "Show all status (Slowest)"
-)
+-- addMultiOptions(
+--     "BookTrack", 
+--     "Only Show Readable Books (Fastest)",
+--     "Readable Book and Higher (Moderate)",
+--     "Show all status (Slowest)"
+-- )
 
 addMultiOptions(
     "MaxItemPerGroup", 
@@ -107,24 +107,37 @@ addMultiOptions(
 
 addSwitch("EnableTrackLitItems", true)
 addSwitch("EnableTrackMediaItems", true)
-addSwitch("EnableBadCondHighlight", true)
-addSwitch("EnablePinItem", true)
+addSwitch("EnableTrackLitItems", true)
+addSwitch("EnableDrainableDetail", true)
 addSwitch("EnableShowModdedGun", false)
-addSwitch("EnableFilledMagazine", false)
+addSwitch("EnableMagazineDetail", false)
 addSwitch("EnableEquipmentLine", true)
 addSwitch("EnableDelayedItemDataUpdate", true)
 addSwitch("EnableDelayedInventoryUpdate", false)
+addSwitch("EnableDetailedAttachments", false)
 addSwitch("ExperimentalTableWipe", false)
 
+addSwitch("EnableTrackMediaItems", true)
+
+local settings
 local function initialize()
     if ModOptions and ModOptions.getInstance then
         print("Utilizing mod option for Inventory Rendering Configurations")
-        local settings = ModOptions:getInstance(options)
+        settings = ModOptions:getInstance(options)
         function settings:OnApply()
+            itrk:applyOption(self)
+        end
+        function settings:OnApplyInGame()
             itrk:applyOption(self)
         end
         ModOptions:loadFile()
     end
 end
+Events.OnGameStart.Add(function()
+    if ModOptions and settings then 
+        ModOptions:loadFile()
+        settings:OnApply() 
+    end
+end)
 -- todo: complete configuration options
 initialize()

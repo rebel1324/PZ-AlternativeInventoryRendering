@@ -28,12 +28,14 @@ local optionValues = {
     itrk_EnableTrackLitItems = true,
     itrk_EnableTrackMediaItems = true,
     itrk_EnableBadCondHighlight = true,
+    itrk_EnableDrainableDetail = true,
     itrk_EnablePinItem = false,
-    itrk_EnableFilledMagazine = false,
     itrk_EnableEquipmentLine = true,
     itrk_EnableDelayedItemDataUpdate = true,
     itrk_EnableDelayedInventoryUpdate = false,
     itrk_ExperimentalTableWipe = false,
+    itrk_EnableDetailedAttachments = false,
+    itrk_EnableMagazineDetail = false,
 }
 local optionUpdateRates = {
     1000,
@@ -64,6 +66,14 @@ local readIcon = getTexture("media/ui/check-circled-green.png");
 local unreadIcon = getTexture("media/ui/info-circled.png");
 -- endregion
 
+local slotFrames = {
+    "media/ui/inner-shadow.png",
+    "media/ui/slot-frame.png",
+    "media/ui/slot-frame-b.png",
+    "media/ui/slot-frame-c.png"
+}
+local attIcon = getTexture(slotFrames[2])
+
 local bookmarkTextures = {
     "media/ui/bookmark-yellow.png",
     "media/ui/bookmark.png",
@@ -73,8 +83,26 @@ local bookmarkTextures = {
     "media/ui/star-yellow.png",
     "media/ui/star-red.png",
     "media/ui/star-white.png",
-    "media/ui/FavoiriteStar.png",
+    "media/ui/FavoriteStar.png",
 }
+
+local progress = {
+    getTexture("media/ui/crcl/c1.png"),
+    getTexture("media/ui/crcl/c2.png"),
+    getTexture("media/ui/crcl/c3.png"),
+    getTexture("media/ui/crcl/c4.png"),
+    getTexture("media/ui/crcl/c5.png"),
+    getTexture("media/ui/crcl/c6.png"),
+    getTexture("media/ui/crcl/c7.png"),
+    getTexture("media/ui/crcl/c8.png"),
+    getTexture("media/ui/crcl/c9.png"),
+    getTexture("media/ui/crcl/c10.png"),
+    getTexture("media/ui/crcl/c11.png"),
+    getTexture("media/ui/crcl/c12.png"),
+}
+progress[0] = getTexture("media/ui/crcl/c0.png")
+
+
 local brokenTextures = {
 
 }
@@ -222,7 +250,8 @@ do
             cIt.atSling = item:getSling()
             cIt.atStock = item:getStock()
             cIt.atRecPad = item:getRecoilpad()
-            cIt.atAny = cIt.atScope or cIt.atClip or cIt.atSling or cIt.atStock or cIt.atRecPad
+            cIt.atCanon = item:getCanon()
+            cIt.atAny = cIt.atScope or cIt.atClip or cIt.atSling or cIt.atStock or cIt.atRecPad or cIt.getCanon
             return cIt.atAny
         end
 
@@ -256,8 +285,37 @@ do
             return true
         end
 
+        local notMagazine = {}
+        local function cacheMagazine(self, item, cIt)
+            if notMagazine[cIt.type] then return false end
+            cIt.magMax = item:getMaxAmmo()
+            if cIt.magMax <= 0 then
+                notMagazine[cIt.type] = true
+                return false
+            end
+            cIt.magCur = item:getCurrentAmmoCount()
+            cIt.magFctOne = cIt.magCur / cIt.magMax
+            cIt.magFct = math.ceil((cIt.magFctOne) * 12)
+            return true
+        end
+
+        local mg = 2
+        local mgg = mg * 2
+        local function drawAttachment(self, mc, item, x, y, wh, i)
+            if item then
+                local tex = item:getTex();
+                if tex then
+                    local xx, yy = x - wh * (i + 1) - 5 * i, y
+                    self:drawTextureScaledAspect(attIcon, xx - mg, yy - mg, wh + mgg, wh + mgg, 1);
+                    self:drawTextureScaledAspect(tex, xx, yy, wh, wh, 1, 1, 1, 1);
+                    return i + 1
+                end
+            end
+            return i
+        end
+
         local getText = getText
-        local function drawItemDetails(self, item, y, xoff, yoff, red, cIt)
+        local function drawItemDetails(self, item, y, xoff, yoff, cIt, displayWid, texWH, texMgn)
             if not item then return end
             local mc = methodCache
 
@@ -274,12 +332,23 @@ do
                     string.format("%d / %d (%d%s)", cIt.cond, cIt.condMax, cIt.condFactor * 100, "%"), cIt.condFactor,
                     xoff, top, fgText, fgBar
                 )
-            elseif cIt.isWater then
-                local c, cm, cf = item:getDrainableUsesInt(), 1 / item:getUseDelta(), item:getUsedDelta()
-                self:drawTextAndProgressBar(
-                    string.format("%d / %d (%d%s)", c, cm, cf * 100, "%"), cf,
-                    xoff, top, fgText, fgBar
-                )
+
+                if optionValues.itrk_EnableDetailedAttachments and cacheItemWepData(self, item, cIt) and cIt.isRanged and cIt.atAny then
+                    local xx, yy = displayWid + xoff - 8, top + texMgn
+                    local i      = drawAttachment(self, mc, cIt.atScope, xx, yy, texWH, 0)
+                    i            = drawAttachment(self, mc, cIt.atClip, xx, yy, texWH, i)
+                    i            = drawAttachment(self, mc, cIt.atSling, xx, yy, texWH, i)
+                    i            = drawAttachment(self, mc, cIt.atStock, xx, yy, texWH, i)
+                    i            = drawAttachment(self, mc, cIt.atRecPad, xx, yy, texWH, i)
+                    i            = drawAttachment(self, mc, cIt.atCanon, xx, yy, texWH, i)
+                end
+            elseif checkType(item, constDrain) then
+                if optionValues.itrk_EnableDrainableDetail then
+                    local c, cm, cf = item:getDrainableUsesInt(), 1 / item:getUseDelta(), item:getUsedDelta()
+                    self:drawTextAndProgressBar(string.format("%d / %d (%d%s)", c, cm, cf * 100, "%"), cf, xoff, top, fgText, fgBar)
+                else
+                    self:drawTextAndProgressBar(getText("IGUI_invpanel_Remaining"), item:getUsedDelta(), xoff, top, fgText, fgBar)
+                end
             elseif cIt.isFood then
                 if cacheItemFreezing(self, item, cIt) then
                     local ft = cIt.frTime
@@ -311,6 +380,12 @@ do
                 else
                     mc.drawtext(self, name, x, y, fgText.a, fgText.r, fgText.g, fgText.b, self.font);
                 end
+            elseif optionValues.itrk_EnableMagazineDetail and cacheMagazine(self, item, cIt) then
+                local tt = texWH * 0.9
+                local txt = string.format("%d / %d (%d%s)", cIt.magCur, cIt.magMax, cIt.magFctOne * 100, "%")
+                self:drawTextureScaledAspect(progress[cIt.magFct], x, y + texWH * 0.05 - 2, tt, tt, 1, 1, cIt.magFctOne * 2, cIt.magFctOne * 2)
+                -- self:drawTextureScaledAspect(progress[cIt.magFct], x, y+texWH*0.05-2, tt, tt, 1, 1, cIt.magFctOne*2, 1)
+                mc.drawtext(self, txt, texWH + 8 + x, y, fgText.a, fgText.r, fgText.g, fgText.b, self.font);
             else
                 mc.drawtext(self, name, x, y, fgText.a, fgText.r, fgText.g, fgText.b, self.font);
             end
@@ -387,16 +462,21 @@ do
             local sel                 = self.selected
             local clp                 = self.collapsed
             local texscale            = self.texScale
+            local auxDXY              = math.ceil(20 * texscale)
             local drawdetail          = drawItemDetails
             local hotbar              = getPlayerHotbar(self.player)
             local doController        = self.doController
-            local joySel              = (self.joyselection and self.joyselection - 1 or 0)
+            local joySel              = (self.joyselection and self.joyselection + 1 or 0)
             -- endregion
 
 
             local idx = 0
             local tstk = -ih
             local itstimetostop = false
+            local texWH = ih - 2
+            texWH = (texWH < 32) and texWH or 32
+            local texMgn = (ih - texWH) / 2
+
             for i = 1, #itemslist do
                 local v = itemslist[i]
                 local itsl, name, its = v.count, v.name, v.items
@@ -443,18 +523,19 @@ do
                                 doIt = false
                             end
 
-                            local var3 = tstk
-                            local itemPos = var3 + scY
-                            local var5 = var3 + hh
+                            local itemPos = tstk + scY
+                            local var5 = tstk + hh
                             if not isDragging and ((itemPos < -ih) or (itemPos > pHgt)) then
                                 doIt = false
                                 itstimetostop = itemPos > pHgt
+                                -- not going to stop
+                                -- if we stop, the item insertion will get halt
                             end
 
                             if doIt then
                                 cIt.type = item:getType()
                                 if first and not doDragged then
-                                    mc.drawtexture(self, not clsp and treeexpicon or treecolicon, 2, var3 + hh + 5 + yoff, 1, 1, 1, 0.8);
+                                    mc.drawtexture(self, not clsp and treeexpicon or treecolicon, 2, tstk + hh + 5 + yoff, 1, 1, 1, 0.8);
                                 end
 
                                 cIt.isWater = checkType(item, constCombo)
@@ -467,10 +548,12 @@ do
                                     color[2] = 0
                                     color[3] = 0
                                 elseif (hl and hl == cIt.type) or (doController and joySel == y) then
-                                    color[4] = 0.4 + math.abs((math.sin(renderTime / 5000) * 0.25))
+                                    color[4] = optionValues.itrk_ControllerHighlight == 2
+                                        and 0.6
+                                        or 0.4 + math.abs((math.sin(renderTime / 5000) * 0.25))
                                 elseif isWaterFood then
                                     cIt.heat, cIt.itemHeat = item:getHeat(), item:getItemHeat()
-                                    cIt.monHeat = cIt.heat ~= 1 and cIt.itemHeat ~= 1
+                                    cIt.monHeat = cIt.heat ~= 1 or cIt.itemHeat ~= 1
                                     cIt.isHot = cIt.heat > 1 or cIt.itemHeat > 1
 
                                     if cIt.monHeat then
@@ -487,17 +570,13 @@ do
                                 -- endregion
 
                                 -- Jesus christ, Until i remove all of this, I cannot say im doing my job.
-                                local tex = item:getTex();
+                                local tex = item:getTex()
                                 if tex then
-                                    local texDY = 1
-                                    local texWH = ih - 2
-                                    texWH = (texWH < 32) and texWH or 32
-                                    local auxDXY = math.ceil(20 * texscale)
                                     local var1 = (20 + auxDXY + xoff)
                                     local var2 = var1 + 1
 
                                     if (itsl > 2 or first) or (itsl == 1 and first) then
-                                        self:drawTextureScaledAspect(tex, xoff + auxDXY, var5 + texDY + yoff, texWH, texWH, first and 1 or 0.7, item:getR(), item:getG(), item:getB());
+                                        self:drawTextureScaledAspect(tex, xoff + auxDXY, var5 + 1 + yoff + texMgn, texWH, texWH, first and 1 or 0.7, item:getR(), item:getG(), item:getB());
                                     end
 
                                     cIt.isWeapon = checkType(item, constWeapon)
@@ -565,7 +644,7 @@ do
                                                     tempCheckCache[ft] = aread and 2 or 1 -- in render, you should check only once.
                                                 end
                                             elseif cIt.isItem then
-                                                if optionValues.itrk_TrackMediaItems then
+                                                if optionValues.itrk_EnableTrackMediaItems then
                                                     if vidCheckCache[item] then
                                                         mc.drawtexture(self, readIcon, var1, yy, 1, 1, 1, 1);
                                                     elseif item.getMediaData then
@@ -627,7 +706,7 @@ do
 
                                 if first then
                                     local col = nameColor[(optionValues.itrk_EnableBadCondHighlight and cIt.isWeapon and cIt.isBroken) and 2 or 1]
-                                    mc.drawtext(self, itemName, self.column2 + 8 + xoff, var3 + var6, col[1], col[2], col[3], col[4], font);
+                                    mc.drawtext(self, itemName, self.column2 + 8 + xoff, tstk + var6, col[1], col[2], col[3], col[4], font);
                                 end
                                 if optionValues.itrk_EnableEquipmentLine and not doDragged and eqLine then
                                     mc.drawrect(self, xoff, scY + var5 + yoff, self.column4, 1, opset[7], color[1], color[2], color[3])
@@ -642,9 +721,9 @@ do
                                 local dcat = item:getDisplayCategory()
                                 if first and not doDragged then
                                     mc.drawtext(self, dcat and getText(itemCat .. dcat) or getText(itemCat .. item:getCategory()),
-                                        self.column3 + 8 + xoff, var3 + var6, 0.6, 0.6, 0.8, 1.0, font);
+                                        self.column3 + 8 + xoff, tstk + var6, 0.6, 0.6, 0.8, 1.0, font);
                                 elseif not first then
-                                    drawdetail(self, item, tstk, xoff, yoff, false, cIt);
+                                    drawdetail(self, item, tstk, xoff, yoff, cIt, displayWid, texWH, texMgn);
                                 end
 
                                 alt = first and not (alt or false) or alt
@@ -673,6 +752,12 @@ do
 
             self:setScrollHeight(tstk + ih * 2);
             self:setScrollWidth(0);
+
+            if self.draggingMarquis then
+                local mqx, mqy = self.draggingMarquisX, self.draggingMarquisY
+                local mw, mh = mqx - msx, mqy - msy
+                self:drawRectBorder(mqx, mqy, -mw, -mh, 0.8, 1, 1, 1)
+            end
             return true
         end
     end
