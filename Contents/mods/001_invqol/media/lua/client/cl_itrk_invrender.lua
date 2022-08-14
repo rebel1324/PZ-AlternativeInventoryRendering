@@ -64,6 +64,7 @@ local rcpIcon = getTexture("media/ui/info-circled.png");
 local lowlevelIcon = getTexture("media/ui/question-mark-circled.png");
 local readIcon = getTexture("media/ui/check-circled-green.png");
 local unreadIcon = getTexture("media/ui/info-circled.png");
+local hasReadIcon = getTexture("media/ui/check-circled-yellow.png");
 -- endregion
 
 local slotFrames = {
@@ -106,6 +107,27 @@ progress[0] = getTexture("media/ui/crcl/c0.png")
 local brokenTextures = {
 
 }
+
+if not getActivatedMods():contains('LitSortOGSN_readOnePage') then
+    local originalISReadABookUpdate = ISReadABook.update
+
+    function ISReadABook:update(...)
+        local skillTrained = self.item:getSkillTrained();
+        if self.item:getNumberOfPages() > 0 and
+                SkillBook[skillTrained] and
+                self.item:getLvlSkillTrained() > self.character:getPerkLevel(SkillBook[skillTrained].perk) + 1 or
+                self.character:HasTrait("Illiterate")
+        then
+            self.pageTimer = 0;
+            if self.item:getNumberOfPages() > 0 then
+                self.character:setAlreadyReadPages(self.item:getFullType(), 1)
+                self:forceStop()
+            end
+        else
+            return originalISReadABookUpdate(self, ...)
+        end
+    end
+end
 
 function itrk:applyOption(settings)
     for k, v in pairs(settings.options) do
@@ -187,12 +209,14 @@ do
         -- You can't just Unread things unless you die.
         -- Exception were made for the video.
         local readCheckCache = {}
+        local hasReadCheckCache = {}
         local vidCheckCache = {}
         local rcpCheckCache = {}
         local tempCheckCache = {}
         local ilTrait = nil
         Events.OnPlayerDeath.Add(function()
             tablewipe(readCheckCache)
+            tablewipe(hasReadCheckCache)
             ilTrait = nil
         end) -- ofc
         Events.OnCreatePlayer.Add(function(pid)
@@ -621,17 +645,26 @@ do
                                                 -- todo: remove cache after death
                                                 if readCheckCache[ft] then
                                                     mc.drawtexture(self, readIcon, var1, yy, 1, 1, 1, 1);
+                                                elseif hasReadCheckCache[ft] then
+                                                    mc.drawtexture(self, hasReadIcon, var1, yy, 1, 1, 1, 1);
                                                 elseif SkillBook[item:getSkillTrained()] then
-                                                    if item:getNumberOfPages() <= player:getAlreadyReadPages(ft) then
+                                                    local readPages = player:getAlreadyReadPages(ft)
+                                                    local playerPerkLevel = player:getPerkLevel(SkillBook[item:getSkillTrained()].perk) + 1
+                                                    if item:getNumberOfPages() <= readPages then
                                                         mc.drawtexture(self, readIcon, var1, yy, 1, 1, 1, 1);
                                                         readCheckCache[ft] = true
+                                                    elseif item:getMaxLevelTrained() < playerPerkLevel then
+                                                        mc.drawtexture(self, readIcon, var1, yy, 1, 1, 1, 1);
+                                                        readCheckCache[ft] = true
+                                                    elseif readPages >= 1 then
+                                                        mc.drawtexture(self, hasReadIcon, var1, yy, 1, 1, 1, 1);
+                                                        hasReadCheckCache[ft] = true
                                                     else
                                                         if perkCache[ft] then
                                                             mc.drawtexture(self, unreadIcon, var1, yy, 1, 1, 1, 1)
                                                         else
-                                                            local perk = SkillBook[item:getSkillTrained()].perk
-                                                            if not (item:getLvlSkillTrained() > player:getPerkLevel(perk) + 1) and
-                                                                not (item:getMaxLevelTrained() < player:getPerkLevel(perk) + 1) then
+                                                            if not (item:getLvlSkillTrained() > playerPerkLevel) and
+                                                                not (item:getMaxLevelTrained() < playerPerkLevel) then
                                                                 perkCache[ft] = true
                                                             end
                                                         end
